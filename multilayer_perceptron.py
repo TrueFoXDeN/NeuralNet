@@ -1,6 +1,4 @@
 from typing import List
-
-from sklearn.datasets import load_digits
 import numpy as np
 
 
@@ -43,11 +41,3 @@ class NeuralNetwork:
             activations.append(activation)
         return activations
 
-
-
-# digits = load_digits()
-# print(digits.data[0])
-
-# plt.gray()
-# plt.matshow(digits.images[0])
-# plt.show()
