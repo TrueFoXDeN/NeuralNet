@@ -4,6 +4,7 @@ from multilayer_perceptron import NeuralNetwork
 from typing import List
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
 
 
 def plot_neural_network(nn: NeuralNetwork, activations: List[np.ndarray]):
@@ -12,6 +13,9 @@ def plot_neural_network(nn: NeuralNetwork, activations: List[np.ndarray]):
     layer_sizes = [nn.input_size] + nn.hidden_layers + [nn.output_size]
     pos = {}
     node_colors = []
+
+    # Create custom colormap from red to blue
+    cmap = LinearSegmentedColormap.from_list('red_green', ['red', 'orange', 'green'], N=256)
 
     # Create nodes and edges of the network
     for layer_idx, layer_size in enumerate(layer_sizes):
@@ -25,6 +29,10 @@ def plot_neural_network(nn: NeuralNetwork, activations: List[np.ndarray]):
                 activation = activations[layer_idx][neuron_idx]
                 node_colors.append(activation)
 
+    # Normalize node colors
+    node_colors = np.array(node_colors)
+    node_colors = (node_colors - node_colors.min()) / (node_colors.max() - node_colors.min())
+
     # Create edges between layers
     for layer_idx in range(len(layer_sizes) - 1):
         weights = nn.weights[layer_idx]
@@ -36,7 +44,7 @@ def plot_neural_network(nn: NeuralNetwork, activations: List[np.ndarray]):
 
     # Draw the network
     plt.figure(figsize=(24, 32))
-    nodes = nx.draw_networkx_nodes(G, pos, node_color=node_colors, cmap=plt.cm.viridis, node_size=200)
+    nodes = nx.draw_networkx_nodes(G, pos, node_color=node_colors, cmap=cmap, node_size=200)
 
     # Extract weights and normalize for alpha values
     edges = []
