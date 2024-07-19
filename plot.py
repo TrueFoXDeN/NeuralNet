@@ -27,17 +27,33 @@ def plot_neural_network(nn: NeuralNetwork, activations: List[np.ndarray]):
 
     # Create edges between layers
     for layer_idx in range(len(layer_sizes) - 1):
+        weights = nn.weights[layer_idx]
         for src_idx in range(layer_sizes[layer_idx]):
             for dst_idx in range(layer_sizes[layer_idx + 1]):
                 src_node = (layer_idx, src_idx)
                 dst_node = (layer_idx + 1, dst_idx)
-                G.add_edge(src_node, dst_node)
+                G.add_edge(src_node, dst_node, weight=weights[src_idx, dst_idx])
 
     # Draw the network
     plt.figure(figsize=(24, 32))
     nodes = nx.draw_networkx_nodes(G, pos, node_color=node_colors, cmap=plt.cm.viridis, node_size=200)
-    edges = nx.draw_networkx_edges(G, pos, alpha=0.45)
-    # plt.colorbar(nodes)
+
+    # Extract weights and normalize for alpha values
+    edges = []
+    alphas = []
+    for (u, v, d) in G.edges(data=True):
+        edges.append((u, v))
+        alphas.append(abs(d['weight']))
+
+    # Normalize alpha values
+    alphas = np.array(alphas)
+    if alphas.max() > alphas.min():
+        alphas = (alphas - alphas.min()) / (alphas.max() - alphas.min())
+    else:
+        alphas.fill(1.0)  # If all weights are the same, make all alphas 1.0
+
+    for i, (edge, alpha) in enumerate(zip(edges, alphas)):
+        nx.draw_networkx_edges(G, pos, edgelist=[edge], alpha=alpha, edge_color='k')
+
     plt.title('Neural Network')
-    # plt.axis('off')
     plt.show()
