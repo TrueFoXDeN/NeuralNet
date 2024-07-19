@@ -15,10 +15,12 @@ def plot_neural_network(nn: NeuralNetwork, activations: List[np.ndarray]):
 
     # Create nodes and edges of the network
     for layer_idx, layer_size in enumerate(layer_sizes):
+        layer_height = layer_size
+        y_offset = layer_height / 2.0 - 0.5
         for neuron_idx in range(layer_size):
             node_id = (layer_idx, neuron_idx)
             G.add_node(node_id)
-            pos[node_id] = (layer_idx, -neuron_idx)
+            pos[node_id] = (layer_idx, y_offset - neuron_idx)
             if layer_idx < len(activations):
                 activation = activations[layer_idx][neuron_idx]
                 node_colors.append(activation)
@@ -32,9 +34,10 @@ def plot_neural_network(nn: NeuralNetwork, activations: List[np.ndarray]):
                 G.add_edge(src_node, dst_node)
 
     # Draw the network
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(24, 32))
     nodes = nx.draw_networkx_nodes(G, pos, node_color=node_colors, cmap=plt.cm.viridis, node_size=200)
-    edges = nx.draw_networkx_edges(G, pos, alpha=0.75)
-    plt.colorbar(nodes)
+    edges = nx.draw_networkx_edges(G, pos, alpha=0.45)
+    # plt.colorbar(nodes)
     plt.title('Neural Network')
+    # plt.axis('off')
     plt.show()
