@@ -33,8 +33,8 @@ def plot_neural_network(nn: NeuralNetwork, activations: List[np.ndarray]):
 
     # Draw the network
     plt.figure(figsize=(12, 8))
-    nodes = nx.draw_networkx_nodes(G, pos, node_color=node_colors, cmap=plt.cm.viridis, node_size=100)
-    edges = nx.draw_networkx_edges(G, pos)
+    nodes = nx.draw_networkx_nodes(G, pos, node_color=node_colors, cmap=plt.cm.viridis, node_size=200)
+    edges = nx.draw_networkx_edges(G, pos, alpha=0.75)
     plt.colorbar(nodes)
     plt.title('Neural Network')
     plt.show()
