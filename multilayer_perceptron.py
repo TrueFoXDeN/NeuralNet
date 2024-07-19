@@ -3,10 +3,17 @@ from typing import List
 from sklearn.datasets import load_digits
 import matplotlib.pyplot as plt
 import numpy as np
+import networkx as nx
 
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
+
+
+def normalize(arr):
+    arr_min = np.min(arr)
+    arr_max = np.max(arr)
+    return (arr - arr_min) / (arr_max - arr_min)
 
 
 class NeuralNetwork:
@@ -31,16 +38,54 @@ class NeuralNetwork:
         self.weights.append(np.random.rand(hidden_layers[-1], output_size))
         self.biases.append(np.random.rand(output_size))
 
-    def feedforward(self, activation: np.ndarray):
+    def feedforward(self, activation: np.ndarray) -> List[np.ndarray]:
+        activations = [activation]  # Initialize with input activation
         for weights, biases in zip(self.weights, self.biases):
-            activation = sigmoid(np.dot(activation, weights) + biases)
-        return activation
+            activation = sigmoid(np.dot(np.transpose(weights), activation) + biases)
+            activations.append(activation)
+        return activations
 
 
-nn = NeuralNetwork(3, [4, 5], 2)
+def plot_neural_network(nn: NeuralNetwork, activations: List[np.ndarray]):
+    G = nx.DiGraph()
 
-print(nn.feedforward(np.array([1, 3, 2])))
-# print(nn.weights)
+    layer_sizes = [nn.input_size] + nn.hidden_layers + [nn.output_size]
+    pos = {}
+    node_colors = []
+
+    # Create nodes and edges of the network
+    for layer_idx, layer_size in enumerate(layer_sizes):
+        for neuron_idx in range(layer_size):
+            node_id = (layer_idx, neuron_idx)
+            G.add_node(node_id)
+            pos[node_id] = (layer_idx, -neuron_idx)
+            if layer_idx < len(activations):
+                activation = activations[layer_idx][neuron_idx]
+                node_colors.append(activation)
+
+    # Create edges between layers
+    for layer_idx in range(len(layer_sizes) - 1):
+        for src_idx in range(layer_sizes[layer_idx]):
+            for dst_idx in range(layer_sizes[layer_idx + 1]):
+                src_node = (layer_idx, src_idx)
+                dst_node = (layer_idx + 1, dst_idx)
+                G.add_edge(src_node, dst_node)
+
+    # Draw the network
+    plt.figure(figsize=(12, 8))
+    nodes = nx.draw_networkx_nodes(G, pos, node_color=node_colors, cmap=plt.cm.viridis, node_size=500)
+    edges = nx.draw_networkx_edges(G, pos)
+    plt.colorbar(nodes)
+    plt.title('Neural Network')
+    plt.show()
+
+
+nn = NeuralNetwork(5, [2, 3], 4)
+initial_activation = normalize(np.array([1.9, 3.6, 2.2, 3.2, 0]))
+activations = nn.feedforward(initial_activation)
+print(activations[-1])
+plot_neural_network(nn, activations)
+
 # digits = load_digits()
 # print(digits.data[0])
 
